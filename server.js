@@ -3,10 +3,10 @@ const mysql = require('mysql2');
 
 // connection to mysql - will probably create an .env file later
 const connection = mysql.createConnection({
-    host: 'local_host',
+    host: 'localhost',
     user: 'root',
     password: 'tu3Z@LJlpQ',
-    database: '',
+    database: 'companyDB',
 });
 
 connection.connect((err) => {
@@ -15,7 +15,7 @@ connection.connect((err) => {
     } else {
         console.log('connected to MYSQL');
     }
-})
+});
 
 // main menu prompt options
 const mainMenu = [
@@ -84,8 +84,8 @@ function promptMainMenu() {
             case 'add employee':
                 addEmployee();
                 break;
-            case 'update employee':
-                updateEmployee();
+            case 'update employee role':
+                updateEmployeeRole();
                 break;
             case 'exit':
                 connection.end();
