@@ -9,6 +9,14 @@ const connection = mysql.createConnection({
     database: '',
 });
 
+connection.connect((err) => {
+    if (err) {
+        console.error('error connectiong to MYSQL', err);
+    } else {
+        console.log('connected to MYSQL');
+    }
+})
+
 // main menu prompt options
 const mainMenu = [
     {
