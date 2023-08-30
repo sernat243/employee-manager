@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
+const fs = require('fs');
 
 // connection to mysql - will probably create an .env file later
 const connection = mysql.createConnection({
@@ -52,13 +53,20 @@ function viewRoles() {
 }
 
 function viewEmployees() {
-    connection.query('SELECT * FROM employees', (err, results) => {
+    fs.readFile('sql/query.sql', 'utf8', (err, query) => {
         if (err) {
-            console.error('Error fetching employees', err);
-        } else {
-            console.table(results);
-            promptMainMenu();
+            console.error('error reading query.sql', err);
+            return;
         }
+
+        connection.query(query, (err, results) => {
+            if (err) {
+                console.error('Error fetching employees', err);
+            } else {
+                console.table(results);
+                promptMainMenu();
+            }
+        });
     });
 }
 
