@@ -42,20 +42,27 @@ function viewDepartments() {
 }
 
 function viewRoles() {
-    connection.query('SELECT * FROM roles', (err, results) => {
+    fs.readFile('sql/viewRoles.sql', 'utf8', (err, query) => {
         if (err) {
-            console.error('Error fetching roles', err);
-        } else {
-            console.table(results);
-            promptMainMenu();
+            console.error('error reading viewRoles.sql', err);
+            return;
         }
+
+       connection.query(query, (err, results) => {
+            if (err) {
+                console.error('Error fetching roles', err);
+            } else {
+                console.table(results);
+                promptMainMenu();
+            } 
+        });
     });
 }
 
 function viewEmployees() {
-    fs.readFile('sql/query.sql', 'utf8', (err, query) => {
+    fs.readFile('sql/viewEmployees.sql', 'utf8', (err, query) => {
         if (err) {
-            console.error('error reading query.sql', err);
+            console.error('error reading viewEmployees.sql', err);
             return;
         }
 
