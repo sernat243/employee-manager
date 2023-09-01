@@ -238,7 +238,7 @@ function promptMainMenu() {
                 updateEmployeeRole();
                 break;
             case 'exit':
-                connection.end();
+                sequelize.end();
                 console.log('goodbye!');
                 break;
             default:
