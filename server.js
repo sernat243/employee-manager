@@ -1,22 +1,11 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const fs = require('fs');
+const sequelize = require('./config/connection');
 
-// connection to mysql - will probably create an .env file later
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'tu3Z@LJlpQ',
-    database: 'companyDB',
-});
+/*/sequelize.sync({ force: true}).then(() => {
 
-connection.connect((err) => {
-    if (err) {
-        console.error('error connectiong to MYSQL', err);
-    } else {
-        console.log('connected to MYSQL');
-    }
-});
+})*/
 
 // main menu prompt options
 const mainMenu = [
@@ -29,52 +18,92 @@ const mainMenu = [
     },
 ];
 
+const addDepartmentPrompt = [
+    {
+        type: 'text',
+        name: 'name',
+        message: 'enter department name',
+    },
+];
+
 //functions
 function viewDepartments() {
-    connection.query('SELECT * FROM departments', (err, results) => {
-        if (err) {
-            console.error('Error fetching departments', err);
-        } else {
+    const query = 'SELECT * FROM departments';
+
+    sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
+        .then((results) => {
             console.table(results);
             promptMainMenu();
-        }
-    });
+        })
+        .catch((err) => {
+            console.error('Error fetching departments', err);
+            promptMainMenu();
+        });
 }
 
 function viewRoles() {
     fs.readFile('sql/viewRoles.sql', 'utf8', (err, query) => {
         if (err) {
-            console.error('error reading viewRoles.sql', err);
+            console.error('Error reading viewRoles.sql', err);
             return;
         }
 
-       connection.query(query, (err, results) => {
-            if (err) {
-                console.error('Error fetching roles', err);
-            } else {
+        sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
+            .then((results) => {
                 console.table(results);
                 promptMainMenu();
-            } 
-        });
+            })
+            .catch((err) => {
+                console.error('Error fetching roles', err);
+                promptMainMenu();
+            });
     });
 }
 
 function viewEmployees() {
     fs.readFile('sql/viewEmployees.sql', 'utf8', (err, query) => {
         if (err) {
-            console.error('error reading viewEmployees.sql', err);
+            console.error('Error reading viewEmployees.sql', err);
             return;
         }
 
-        connection.query(query, (err, results) => {
-            if (err) {
-                console.error('Error fetching employees', err);
-            } else {
+        sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
+            .then((results) => {
                 console.table(results);
                 promptMainMenu();
-            }
-        });
+            })
+            .catch((err) => {
+                console.error('Error fetching employees', err);
+                promptMainMenu();
+            });
     });
+}
+
+async function addDepartment(departmentName) {
+    const query = `INSERT INTO departments (name) VALUES (:departmentName)`;
+
+    try {
+        const result = await sequelize.query(query, {
+            replacements: { departmentName },
+            type: sequelize.QueryTypes.INSERT
+        });
+
+        console.log('Department added successfully');
+    } catch (err) {
+        console.error('Error adding department', err);
+    }
+}
+
+async function promptAddDepartment() {
+    try {
+        const answers = await inquirer.prompt(addDepartmentPrompt);
+        const departmentName = answers.name;
+        await addDepartment(departmentName);
+        promptMainMenu();
+    } catch (err) {
+        console.error('An error occurred', err);
+        promptMainMenu();
+    }
 }
 
 //main menu prompt
@@ -91,7 +120,7 @@ function promptMainMenu() {
                 viewEmployees();
                 break;
             case 'add department':
-                addDepartment();
+                promptAddDepartment();
                 break;
             case 'add role':
                 addRole();
